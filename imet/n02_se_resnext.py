@@ -118,7 +118,7 @@ class ResNet(ResNetAvg7):
 
 
 class ResNeXt(ResNet):
-    def __init__(self, block, baseWidth, cardinality, layers, num_classes=1104):
+    def __init__(self, block, baseWidth, cardinality, layers, num_classes=1103):
         self.cardinality = cardinality
         self.baseWidth = baseWidth
         super(ResNeXt, self).__init__(block, layers, num_classes)

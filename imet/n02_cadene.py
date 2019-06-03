@@ -426,7 +426,7 @@ def make_encoder(model):
     return model
 
 
-def senet154(num_classes=1104):
+def senet154(num_classes=1103):
     model = SENet(
         SEBottleneck,
         [3, 8, 36, 3],
@@ -439,7 +439,7 @@ def senet154(num_classes=1104):
     return model
 
 
-def se_resnext50_32x4d(num_classes=1104):
+def se_resnext50_32x4d(num_classes=1103):
     model = SENet(
         SEResNeXtBottleneck,
         [3, 4, 6, 3],
@@ -457,7 +457,7 @@ def se_resnext50_32x4d(num_classes=1104):
     return model
 
 
-def se_resnext101_32x4d(num_classes=1104):
+def se_resnext101_32x4d(num_classes=1103):
     model = SENet(
         SEResNeXtBottleneck,
         [3, 4, 23, 3],
