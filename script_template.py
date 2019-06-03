@@ -21,7 +21,5 @@ def run(command):
 
 
 run('python setup.py develop --install-dir /kaggle/working')
-run('python -m imet.make_folds')
-run('python -m imet.main train model_1 --n-epochs 25')
-run('python -m imet.main predict_test model_1')
-run('python -m imet.make_submission model_1/test.h5 submission.csv --threshold 0.1')
+run('python -m imet.n05_main --checkpoint "../input/imetweightn01z3/weights.zip/se_resnext50.pth" ')
+run('python -m imet.n06_make_submission')

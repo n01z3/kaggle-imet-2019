@@ -3,7 +3,7 @@ import math
 import torch
 import torch.nn as nn
 from torchvision.models.resnet import ResNet as ResNetAvg7
-
+from imet.n04_dataset import N_CLASSES
 
 class SEBlock(nn.Module):
     def __init__(self, planes, reduction=16):
@@ -118,7 +118,7 @@ class ResNet(ResNetAvg7):
 
 
 class ResNeXt(ResNet):
-    def __init__(self, block, baseWidth, cardinality, layers, num_classes=1103):
+    def __init__(self, block, baseWidth, cardinality, layers, num_classes=N_CLASSES):
         self.cardinality = cardinality
         self.baseWidth = baseWidth
         super(ResNeXt, self).__init__(block, layers, num_classes)

@@ -63,7 +63,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     arg = parser.add_argument
     arg('--model', default='se_resnext50')
-    arg('--checkpoint', default='../weights/se_resnext50|e62_f4c.pth')
+    arg('--checkpoint', default='../weights/se_resnext50.pth')
     arg('--crop-size', default=640)
     arg('--scale-size', default=320)
 
@@ -112,7 +112,7 @@ def main():
     df = tta_averaging.build_predictions_dataframe()
     os.makedirs(args.model, exist_ok=True)
 
-    df.to_hdf(os.path.join(args.model, f'test_c.h5'), 'prob', index_label='id')
+    df.to_hdf(os.path.join(args.model, f'test.h5'), 'prob', index_label='id')
     print(f'Saved predictions for {args.model}')
 
 

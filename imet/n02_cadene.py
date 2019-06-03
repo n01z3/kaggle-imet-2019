@@ -3,6 +3,7 @@ from __future__ import print_function, division, absolute_import
 import math
 from collections import OrderedDict
 
+from imet.n04_dataset import N_CLASSES
 import torch
 import torch.nn as nn
 from torch.utils import model_zoo
@@ -426,7 +427,7 @@ def make_encoder(model):
     return model
 
 
-def senet154(num_classes=1103):
+def senet154(num_classes=N_CLASSES):
     model = SENet(
         SEBottleneck,
         [3, 8, 36, 3],
@@ -439,7 +440,7 @@ def senet154(num_classes=1103):
     return model
 
 
-def se_resnext50_32x4d(num_classes=1103):
+def se_resnext50_32x4d(num_classes=N_CLASSES):
     model = SENet(
         SEResNeXtBottleneck,
         [3, 4, 6, 3],
@@ -457,7 +458,7 @@ def se_resnext50_32x4d(num_classes=1103):
     return model
 
 
-def se_resnext101_32x4d(num_classes=1103):
+def se_resnext101_32x4d(num_classes=N_CLASSES):
     model = SENet(
         SEResNeXtBottleneck,
         [3, 4, 23, 3],
