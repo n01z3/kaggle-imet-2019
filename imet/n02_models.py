@@ -5,7 +5,7 @@ from torch import nn
 from torch.nn import functional as F
 import torchvision.models as M
 
-from .utils import ON_KAGGLE
+from .n01_utils import ON_KAGGLE
 
 
 class AvgPool(nn.Module):

@@ -2,9 +2,9 @@ import argparse
 
 import pandas as pd
 
-from .utils import mean_df
-from .dataset import DATA_ROOT
-from .main import binarize_prediction
+from .n01_utils import mean_df
+from .n04_dataset import DATA_ROOT
+from .n05_main import binarize_prediction
 
 
 def main():

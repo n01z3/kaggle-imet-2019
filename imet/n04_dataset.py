@@ -7,8 +7,8 @@ from PIL import Image
 import torch
 from torch.utils.data import Dataset
 
-from .transforms import tensor_transform
-from .utils import ON_KAGGLE
+from .n03_transforms import tensor_transform
+from .n01_utils import ON_KAGGLE
 
 
 N_CLASSES = 1103

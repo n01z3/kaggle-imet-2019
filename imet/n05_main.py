@@ -15,10 +15,10 @@ from torch import nn, cuda
 from torch.optim import Adam
 import tqdm
 
-from . import models
-from .dataset import TrainDataset, TTADataset, get_ids, N_CLASSES, DATA_ROOT
-from .transforms import train_transform, test_transform
-from .utils import (
+from . import n02_models
+from .n04_dataset import TrainDataset, TTADataset, get_ids, N_CLASSES, DATA_ROOT
+from .n03_transforms import train_transform, test_transform
+from .n01_utils import (
     write_event, load_model, mean_df, ThreadingDataLoader as DataLoader,
     ON_KAGGLE)
 
@@ -64,7 +64,7 @@ def main():
             num_workers=args.workers,
         )
     criterion = nn.BCEWithLogitsLoss(reduction='none')
-    model = getattr(models, args.model)(
+    model = getattr(n02_models, args.model)(
         num_classes=N_CLASSES, pretrained=args.pretrained)
     use_cuda = cuda.is_available()
     fresh_params = list(model.fresh_params())
