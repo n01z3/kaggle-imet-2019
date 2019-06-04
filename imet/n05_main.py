@@ -1,31 +1,22 @@
 import argparse
-from itertools import islice
-import json
-from pathlib import Path
 import os
-import shutil
-import warnings
-from typing import Dict
-from torch.utils.data import Dataset, DataLoader
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import fbeta_score
-from sklearn.exceptions import UndefinedMetricWarning
 import torch
-from torch import nn, cuda
-from torch.optim import Adam
+from torch import cuda
+from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from imet.n02_models import se_resnext50, se_resnext101
-from imet.n04_dataset import TTADataset, N_CLASSES, DATA_ROOT
-from imet.n03_transforms import TTA2, test_transform
 from imet.n01_utils import (
-    write_event, load_model, mean_df, ThreadingDataLoader as DataLoader,
-    ON_KAGGLE)
+    ThreadingDataLoader as DataLoader,
+    ON_KAGGLE,
+)
+from imet.n02_models import se_resnext50, se_resnext101, effnet_b3, densenet161
+from imet.n03_transforms import TTA2
+from imet.n04_dataset import TTADataset, N_CLASSES, DATA_ROOT
 
-MODELS = {'se_resnext101': se_resnext101,
-          'se_resnext50': se_resnext50}
+MODELS = {"se_resnext101": se_resnext101, "se_resnext50": se_resnext50, 'eff_b3': effnet_b3, 'dn161': densenet161}
 
 
 class TTAAveraging:
@@ -62,18 +53,18 @@ class TTAAveraging:
 def parse_args():
     parser = argparse.ArgumentParser()
     arg = parser.add_argument
-    arg('--model', default='se_resnext50')
-    arg('--checkpoint', default='../weights/se_resnext50.pth')
-    arg('--crop-size', default=640)
-    arg('--scale-size', default=320)
+    arg("--model", default="eff_b3")
+    arg("--checkpoint", default="../weights/eff_b3.pth")
+    arg("--crop-size", type=int, default=640)
+    arg("--scale-size", type=int, default=320)
 
-    arg('--batch-size', type=int, default=16)
-    arg('--step', type=int, default=1)
-    arg('--workers', type=int, default=2 if ON_KAGGLE else 4)
-    arg('--clean', action='store_true')
-    arg('--tta', type=int, default=2)
-    arg('--debug', action='store_true')
-    arg('--limit', type=int)
+    arg("--batch-size", type=int, default=16)
+    arg("--step", type=int, default=1)
+    arg("--workers", type=int, default=2 if ON_KAGGLE else 4)
+    arg("--clean", action="store_true")
+    arg("--tta", type=int, default=2)
+    arg("--debug", action="store_true")
+    arg("--limit", type=int)
     return parser.parse_args()
 
 
@@ -89,15 +80,14 @@ def main():
 
     model.eval()
 
-    dataset = TTADataset(DATA_ROOT, TTA2(args.crop_size, args.crop_size, args.scale_size))
-    tloader = DataLoader(dataset,
-                         batch_size=args.batch_size,
-                         shuffle=False,
-                         num_workers=args.workers)
-
-    tta_averaging = TTAAveraging(
-        tta_size=args.tta, num_classes=N_CLASSES
+    dataset = TTADataset(
+        DATA_ROOT, TTA2(args.crop_size, args.crop_size, args.scale_size)
     )
+    tloader = DataLoader(
+        dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.workers
+    )
+
+    tta_averaging = TTAAveraging(tta_size=args.tta, num_classes=N_CLASSES)
 
     with torch.set_grad_enabled(False):
         for data in tqdm(tloader, total=len(tloader)):
@@ -112,9 +102,9 @@ def main():
     df = tta_averaging.build_predictions_dataframe()
     os.makedirs(args.model, exist_ok=True)
 
-    df.to_hdf(os.path.join(args.model, f'test.h5'), 'prob', index_label='id')
-    print(f'Saved predictions for {args.model}')
+    df.to_hdf(os.path.join(os.path.basename(args.checkpoint).split('.')[0], f"test.h5"), "prob", index_label="id")
+    print(f"Saved predictions for {args.model}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

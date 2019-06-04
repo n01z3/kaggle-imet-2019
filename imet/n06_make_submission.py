@@ -1,3 +1,4 @@
+from glob import glob
 import argparse
 
 import pandas as pd
@@ -9,7 +10,7 @@ from imet.n04_dataset import DATA_ROOT, N_CLASSES
 def parse_args():
     parser = argparse.ArgumentParser()
     arg = parser.add_argument
-    arg('--predictions', type=str, default='se_resnext50/test.h5')
+    arg('--predictions', type=str, default='*/test.h5')
     arg('--threshold', type=float, default=0.13)
     arg('--output', type=str, default='submission.csv')
     return parser.parse_args()
@@ -17,10 +18,17 @@ def parse_args():
 
 def main():
     args = parse_args()
-    df = pd.read_hdf(args.predictions, 'prob')
-    print(df.head())
 
-    arr = df.drop('id', axis=1).values
+    lst = []
+    for fn in sorted(glob(args.predictions)):
+        df = pd.read_hdf(fn, 'prob')
+        lst.append(df.drop('id', axis=1).values)
+
+    if len(lst) > 0:
+        print(f'avg {len(lst)} checkpoints')
+        arr = np.mean(np.array(lst), axis=0)
+    else:
+        arr = lst[0]
 
     attrs = []
     for i in range(arr.shape[0]):

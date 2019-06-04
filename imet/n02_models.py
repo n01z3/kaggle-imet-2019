@@ -8,6 +8,8 @@ import torchvision.models as M
 from imet.n01_utils import ON_KAGGLE
 from imet.n02_se_resnext import se_resnext50
 from imet.n02_cadene import se_resnext101_32x4d as se_resnext101
+from imet.n02_effnet import effnet_b3
+from imet.n04_dataset import N_CLASSES
 
 
 class AvgPool(nn.Module):
@@ -54,6 +56,7 @@ class DenseNet(nn.Module):
         self.avg_pool = AvgPool()
         self.net.classifier = nn.Linear(self.net.classifier.in_features, num_classes)
 
+
     def fresh_params(self):
         return self.net.classifier.parameters()
 
@@ -65,13 +68,42 @@ class DenseNet(nn.Module):
         return out
 
 
-resnet18 = partial(ResNet, net_cls=M.resnet18)
-resnet34 = partial(ResNet, net_cls=M.resnet34)
-resnet50 = partial(ResNet, net_cls=M.resnet50)
-resnet101 = partial(ResNet, net_cls=M.resnet101)
-resnet152 = partial(ResNet, net_cls=M.resnet152)
+def densenet161():
+    model = M.densenet161(pretrained=False)
+    model.classifier = nn.Linear(model.classifier.in_features, N_CLASSES)
+    model.encoder = model.features
+    return model
 
-densenet121 = partial(DenseNet, net_cls=M.densenet121)
-densenet169 = partial(DenseNet, net_cls=M.densenet169)
-densenet201 = partial(DenseNet, net_cls=M.densenet201)
-densenet161 = partial(DenseNet, net_cls=M.densenet161)
+
+if __name__ == '__main__':
+    model = densenet161()
+    checkpoint = torch.load(
+        '/media/n01z3/red3_2/learning_dumps/dn161_f0_a6_e/fold_1/stage2/weights/epoch80_metric0.60313.pth')
+    print(checkpoint.keys())
+
+    loaded_state_dict = checkpoint['state_dict']
+    sanitized = dict()
+    for key in checkpoint['state_dict'].keys():
+        sanitized[key.replace('classifier.1', 'classifier')] = loaded_state_dict[key]
+        if 'classifier' in key:
+            print(key)
+
+
+    print(sanitized['classifier.weight'].shape)
+    print(sanitized['classifier.bias'].shape)
+
+    fc_weights = torch.from_numpy(sanitized['classifier.weight'].data.cpu().numpy()[:-1, :])
+    fc_bias = torch.from_numpy(sanitized['classifier.bias'].data.cpu().numpy()[:-1])
+
+    sanitized['classifier.weight'] = fc_weights
+    sanitized['classifier.bias'] = fc_bias
+
+    torch.save(sanitized, '../weights/dn161.pth')
+
+    model.load_state_dict(torch.load('../weights/dn161.pth'))
+    images = torch.autograd.Variable(torch.randn(4, 3, 320, 320))
+    # if torch.cuda.is_available():
+    #     images = images.cuda()
+
+    out = model.forward(images)
+    print(out.shape)
